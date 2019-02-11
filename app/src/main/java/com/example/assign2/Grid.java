@@ -1,30 +1,42 @@
 package com.example.assign2;
 
+import android.app.Activity;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.Constraints;
+import android.view.View;
+import android.widget.ImageView;
+
+import java.util.zip.Inflater;
 
 public class Grid {
 
+    public Activity myActivity;
+    private int id;
     private ConstraintLayout.LayoutParams pos;
-    private Square square;
-
-    public Grid(ConstraintLayout.LayoutParams pos){
+    private boolean taken;
+    ImageView img;
+    public Grid(Activity myActivity,ConstraintLayout.LayoutParams pos,int id){
+        this.myActivity=myActivity;
+        this.id=id;
         this.pos=pos;
-        square=null;
+
     }
 
     public ConstraintLayout.LayoutParams getPos(){
         return pos;
     }
 
-    public void setSquare(Square square) {
-        this.square = square;
+    public void changeResource(int imageName){
+
+        img=(ImageView)myActivity.findViewById(this.id);
+        img.setVisibility(View.VISIBLE);
+        //img.setImageResource(R.mipmap.ic_launcher);
+    }
+    public void setTaken(boolean taken){
+        this.taken=taken;
+    }
+    public boolean isTaken(){
+        return this.taken;
     }
 
-    public Square getSquare() {
-        return square;
-    }
-    public void resetGrid(){
-        this.square=null;
-    }
 }

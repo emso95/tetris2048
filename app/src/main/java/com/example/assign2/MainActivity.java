@@ -1,11 +1,14 @@
 package com.example.assign2;
 
 import android.animation.ObjectAnimator;
+import android.os.CountDownTimer;
+import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.Constraints;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,18 +17,26 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,Animation.AnimationListener {
 
     Animation animDown,animUp,animRight,animLeft;
     ImageView imageView,img;
+    TextView gameStatus;
     Button btn;
     Table table;
     Grid[][] grids;
     ConstraintLayout cl;
+    ConstraintLayout.LayoutParams[] startingPoints;
+    private Handler handler,gameHandler;
     private GestureDetectorCompat gestureDetectorCompat = null;
-
+    boolean gameOver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,25 +44,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         ConstructTable();
 
-
         DetectSwipeGestureListener gestureListener = new DetectSwipeGestureListener();
         gestureListener.setActivity(this);
         gestureDetectorCompat = new GestureDetectorCompat(this, gestureListener);
-
+        handler = new Handler();
+        gameHandler= new Handler();
         loadAnimations();
         loadUI();
+
+        img = new ImageView(this);
     }
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        // Pass activity on touch event to the gesture detector.
+
         gestureDetectorCompat.onTouchEvent(event);
-        // Return true to tell android OS that event has been consumed, do not pass it to other event listeners.
         return true;
+
     }
 
     private void loadUI() {
-        //imageView=(ImageView)findViewById(R.id.imageView);
-        //imageView2=(ImageView)findViewById(R.id.imageView2);
+
         btn=(Button)findViewById(R.id.button);
         btn.setOnClickListener(this);
 
@@ -75,21 +87,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         if(v.getId()==R.id.button) {
             cl = findViewById(R.id.myLayout);
-            img=new ImageView(this);
-            img.setLayoutParams(table.grids[0][0].getPos());
-            img.setImageResource(R.mipmap.ic_launcher);
             cl.addView(img);
-            //anim.setDuration(100);
-            //anim.setAnimationListener(this);
-            //anim.setFillEnabled(true);
-
-            //imageView.startAnimation(anim);
-            //imageView2.startAnimation(anim);
-
+            gameHandler.post(runnableGame);
+            handler.postDelayed(runnable, 1000);
 
         }
     }
+    private Runnable runnableGame = new Runnable() {
+        @Override
+        public void run() {
+            table.currentY=0;
+            final int random = new Random().nextInt(3);
+            table.currentX=random;
+            img.setLayoutParams(startingPoints[random]);
+            img.setImageResource(R.mipmap.ic_launcher);
+            gameStatus=(TextView)findViewById(R.id.gameStatus);
+        }
+    };
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            if(table.checkAvailability(1)) {
+                movement(1);
+            }
+            else {
+                if(!table.checkEndGame()) {
+                    table.fillGrid(R.mipmap.ic_launcher);
+                    gameHandler.post(runnableGame);
+                }
+                else{
+                    handler.removeCallbacks(runnable);
+                    gameHandler.removeCallbacks(runnableGame);
+                    gameStatus.setVisibility(View.VISIBLE);
+                }
+            }
 
+            handler.postDelayed(this, 1000);
+        }
+    };
     @Override
     public void onAnimationStart(Animation animation) {
 
@@ -118,14 +153,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     animDown.setAnimationListener(this);
                     animDown.setFillEnabled(true);
                     img.startAnimation(animDown);
-                }
-                break;
-            case 2:
-                if(table.checkAvailability(2)) {
-                    animUp.setDuration(100);
-                    animUp.setAnimationListener(this);
-                    animUp.setFillEnabled(true);
-                    img.startAnimation(animUp);
+                    table.currentY++;
                 }
                 break;
             case 3:
@@ -134,6 +162,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     animRight.setAnimationListener(this);
                     animRight.setFillEnabled(true);
                     img.startAnimation(animRight);
+                    table.currentX++;
                 }
                 break;
             case 4:
@@ -142,79 +171,105 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     animLeft.setAnimationListener(this);
                     animLeft.setFillEnabled(true);
                     img.startAnimation(animLeft);
+                    table.currentX--;
                 }
                 break;
         }
     }
     public void ConstructTable(){
-        grids=new Grid[4][4];
+        grids=new Grid[5][4];
+        startingPoints=new ConstraintLayout.LayoutParams[4];
 
-        imageView=(ImageView)findViewById(R.id.grid11);
-        ConstraintLayout.LayoutParams pos = (ConstraintLayout.LayoutParams) imageView.getLayoutParams();
-        grids[0][0]=new Grid(pos);
+        final ImageView imageView1=(ImageView)findViewById(R.id.grid11);
+        ConstraintLayout.LayoutParams pos = (ConstraintLayout.LayoutParams) imageView1.getLayoutParams();
+        grids[1][0]=new Grid(this,pos,R.id.grid11);
 
-        imageView=(ImageView)findViewById(R.id.grid12);
+        final ImageView imageView2=(ImageView)findViewById(R.id.grid12);
+        pos = (ConstraintLayout.LayoutParams) imageView2.getLayoutParams();
+        grids[1][1]=new Grid(this,pos,R.id.grid12);
+
+        final ImageView imageView3=(ImageView)findViewById(R.id.grid13);
+        pos = (ConstraintLayout.LayoutParams) imageView3.getLayoutParams();
+        grids[1][2]=new Grid(this,pos,R.id.grid13);
+
+        final ImageView imageView4=(ImageView)findViewById(R.id.grid14);
+        pos = (ConstraintLayout.LayoutParams) imageView4.getLayoutParams();
+        grids[1][3]=new Grid(this,pos,R.id.grid14);
+
+        final ImageView imageView5=(ImageView)findViewById(R.id.grid21);
+        pos = (ConstraintLayout.LayoutParams) imageView5.getLayoutParams();
+        grids[2][0]=new Grid(this,pos,R.id.grid21);
+
+        final ImageView imageView6=(ImageView)findViewById(R.id.grid22);
+        pos = (ConstraintLayout.LayoutParams) imageView6.getLayoutParams();
+        grids[2][1]=new Grid(this,pos,R.id.grid22);
+
+        final ImageView imageView7=(ImageView)findViewById(R.id.grid23);
+        pos = (ConstraintLayout.LayoutParams) imageView7.getLayoutParams();
+        grids[2][2]=new Grid(this,pos,R.id.grid23);
+
+        final ImageView imageView8=(ImageView)findViewById(R.id.grid24);
+        pos = (ConstraintLayout.LayoutParams) imageView8.getLayoutParams();
+        grids[2][3]=new Grid(this,pos,R.id.grid24);
+
+        final ImageView imageView9=(ImageView)findViewById(R.id.grid31);
+        pos = (ConstraintLayout.LayoutParams) imageView9.getLayoutParams();
+        grids[3][0]=new Grid(this,pos,R.id.grid31);
+
+        final ImageView imageView10=(ImageView)findViewById(R.id.grid32);
+        pos = (ConstraintLayout.LayoutParams) imageView10.getLayoutParams();
+        grids[3][1]=new Grid(this,pos,R.id.grid32);
+
+        final ImageView imageView11=(ImageView)findViewById(R.id.grid33);
+        pos = (ConstraintLayout.LayoutParams) imageView11.getLayoutParams();
+        grids[3][2]=new Grid(this,pos,R.id.grid33);
+
+        final ImageView imageView12=(ImageView)findViewById(R.id.grid34);
+        pos = (ConstraintLayout.LayoutParams) imageView12.getLayoutParams();
+        grids[3][3]=new Grid(this,pos,R.id.grid34);
+
+        final ImageView imageView13=(ImageView)findViewById(R.id.grid41);
+        pos = (ConstraintLayout.LayoutParams) imageView13.getLayoutParams();
+        grids[4][0]=new Grid(this,pos,R.id.grid41);
+
+        final ImageView imageView14=(ImageView)findViewById(R.id.grid42);
+        pos = (ConstraintLayout.LayoutParams) imageView14.getLayoutParams();
+        grids[4][1]=new Grid(this,pos,R.id.grid42);
+
+        final ImageView imageView15=(ImageView)findViewById(R.id.grid43);
+        pos = (ConstraintLayout.LayoutParams) imageView15.getLayoutParams();
+        grids[4][2]=new Grid(this,pos,R.id.grid43);
+
+        final ImageView imageView16=(ImageView)findViewById(R.id.grid44);
+        pos = (ConstraintLayout.LayoutParams) imageView16.getLayoutParams();
+        grids[4][3]=new Grid(this,pos,R.id.grid44);
+
+        imageView=(ImageView)findViewById(R.id.startingPoint1);
         pos = (ConstraintLayout.LayoutParams) imageView.getLayoutParams();
-        grids[0][1]=new Grid(pos);
+        startingPoints[0]=pos;
+        grids[0][0]=new Grid(this,pos,R.id.startingPoint1);
 
-        imageView=(ImageView)findViewById(R.id.grid13);
+        imageView=(ImageView)findViewById(R.id.startingPoint2);
         pos = (ConstraintLayout.LayoutParams) imageView.getLayoutParams();
-        grids[0][2]=new Grid(pos);
+        startingPoints[1]=pos;
+        grids[0][1]=new Grid(this,pos,R.id.startingPoint2);
 
-        imageView=(ImageView)findViewById(R.id.grid14);
+        imageView=(ImageView)findViewById(R.id.startingPoint3);
         pos = (ConstraintLayout.LayoutParams) imageView.getLayoutParams();
-        grids[0][3]=new Grid(pos);
+        startingPoints[2]=pos;
+        grids[0][2]=new Grid(this,pos,R.id.startingPoint3);
 
-        imageView=(ImageView)findViewById(R.id.grid21);
+        imageView=(ImageView)findViewById(R.id.startingPoint4);
         pos = (ConstraintLayout.LayoutParams) imageView.getLayoutParams();
-        grids[1][0]=new Grid(pos);
-
-        imageView=(ImageView)findViewById(R.id.grid22);
-        pos = (ConstraintLayout.LayoutParams) imageView.getLayoutParams();
-        grids[1][1]=new Grid(pos);
-
-        imageView=(ImageView)findViewById(R.id.grid23);
-        pos = (ConstraintLayout.LayoutParams) imageView.getLayoutParams();
-        grids[1][2]=new Grid(pos);
-
-        imageView=(ImageView)findViewById(R.id.grid24);
-        pos = (ConstraintLayout.LayoutParams) imageView.getLayoutParams();
-        grids[1][3]=new Grid(pos);
-
-        imageView=(ImageView)findViewById(R.id.grid31);
-        pos = (ConstraintLayout.LayoutParams) imageView.getLayoutParams();
-        grids[2][0]=new Grid(pos);
-
-        imageView=(ImageView)findViewById(R.id.grid32);
-        pos = (ConstraintLayout.LayoutParams) imageView.getLayoutParams();
-        grids[2][1]=new Grid(pos);
-
-        imageView=(ImageView)findViewById(R.id.grid33);
-        pos = (ConstraintLayout.LayoutParams) imageView.getLayoutParams();
-        grids[2][2]=new Grid(pos);
-
-        imageView=(ImageView)findViewById(R.id.grid34);
-        pos = (ConstraintLayout.LayoutParams) imageView.getLayoutParams();
-        grids[2][3]=new Grid(pos);
-
-        imageView=(ImageView)findViewById(R.id.grid41);
-        pos = (ConstraintLayout.LayoutParams) imageView.getLayoutParams();
-        grids[3][0]=new Grid(pos);
-
-        imageView=(ImageView)findViewById(R.id.grid42);
-        pos = (ConstraintLayout.LayoutParams) imageView.getLayoutParams();
-        grids[3][1]=new Grid(pos);
-
-        imageView=(ImageView)findViewById(R.id.grid43);
-        pos = (ConstraintLayout.LayoutParams) imageView.getLayoutParams();
-        grids[3][2]=new Grid(pos);
-
-        imageView=(ImageView)findViewById(R.id.grid44);
-        pos = (ConstraintLayout.LayoutParams) imageView.getLayoutParams();
-        grids[3][3]=new Grid(pos);
+        startingPoints[3]=pos;
+        grids[0][3]=new Grid(this,pos,R.id.startingPoint4);
 
         table=new Table(grids);
         table.currentX=0;
         table.currentY=0;
+
+
     }
+
+
 }

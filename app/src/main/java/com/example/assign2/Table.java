@@ -12,21 +12,17 @@ public class Table {
         boolean tmp = false;
         switch (direction){
             case 1:
-                if(currentY+1>3){
+                if(currentY+1>4){
                     tmp=false;
                 }
                 else{
-                    tmp=true;
-                    currentY++;
-                }
-                break;
-            case 2:
-                if(currentY-1<0){
-                    tmp=false;
-                }
-                else{
-                    currentY--;
-                    tmp=true;
+                    if(grids[currentY+1][currentX].isTaken()){
+                        tmp=false;
+                    }
+                    else {
+                        tmp = true;
+
+                    }
                 }
                 break;
             case 3:
@@ -34,8 +30,12 @@ public class Table {
                     tmp=false;
                 }
                 else{
-                    currentX++;
-                    tmp=true;
+                    if(grids[currentY][currentX+1].isTaken()){
+                        tmp=false;
+                    }
+                    else {
+                        tmp = true;
+                    }
                 }
                 break;
             case 4:
@@ -43,12 +43,34 @@ public class Table {
                     tmp=false;
                 }
                 else{
-                    currentX--;
-                    tmp=true;
+                    if(grids[currentY][currentX-1].isTaken()){
+                        tmp=false;
+                    }
+                    else {
+
+                        tmp = true;
+                    }
                 }
                 break;
 
         }
         return tmp;
+    }
+    public void fillGrid(int imageName){
+        grids[currentY][currentX].setTaken(true);
+        grids[currentY][currentX].changeResource(imageName);
+    }
+    public void resetGrid(int x,int y){
+        grids[x][y].setTaken(false);
+        grids[x][y].changeResource(R.drawable.grid);
+    }
+
+    public boolean checkEndGame(){
+        if(currentY==0){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 }

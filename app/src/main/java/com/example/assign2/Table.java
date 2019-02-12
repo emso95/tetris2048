@@ -5,6 +5,7 @@ public class Table {
     Grid[][] grids;
     int currentX;
     int currentY;
+    int currentNum;
     public Table(Grid[][] grids){
         this.grids=grids;
     }
@@ -16,11 +17,15 @@ public class Table {
                     tmp=false;
                 }
                 else{
-                    if(grids[currentY+1][currentX].isTaken()){
-                        tmp=false;
+                    if(grids[currentY+1][currentX].isTaken()&& grids[currentY+1][currentX].getNum()==currentNum){
+                        currentNum++;
+                        tmp=true;
+                        this.resetGrid(currentY,currentX);
                     }
+                    else if(!grids[currentY+1][currentX].isTaken())
+                        tmp=true;
                     else {
-                        tmp = true;
+                        tmp = false;
 
                     }
                 }
@@ -30,11 +35,15 @@ public class Table {
                     tmp=false;
                 }
                 else{
-                    if(grids[currentY][currentX+1].isTaken()){
-                        tmp=false;
+                    if(grids[currentY][currentX+1].isTaken()&& grids[currentY][currentX+1].getNum()==currentNum){
+                        currentNum++;
+                        tmp=true;
+                        this.resetGrid(currentY,currentX);
                     }
+                    else if(!grids[currentY][currentX+1].isTaken())
+                        tmp=true;
                     else {
-                        tmp = true;
+                        tmp = false;
                     }
                 }
                 break;
@@ -43,12 +52,16 @@ public class Table {
                     tmp=false;
                 }
                 else{
-                    if(grids[currentY][currentX-1].isTaken()){
-                        tmp=false;
+                    if(grids[currentY][currentX-1].isTaken() && grids[currentY][currentX-1].getNum()==currentNum){
+                        currentNum++;
+                        tmp=true;
+                        this.resetGrid(currentY,currentX);
                     }
+                    else if(!grids[currentY][currentX-1].isTaken())
+                        tmp=true;
                     else {
 
-                        tmp = true;
+                        tmp = false;
                     }
                 }
                 break;
@@ -59,10 +72,11 @@ public class Table {
     public void fillGrid(int imageName){
         grids[currentY][currentX].setTaken(true);
         grids[currentY][currentX].changeResource(imageName);
+
     }
-    public void resetGrid(int x,int y){
-        grids[x][y].setTaken(false);
-        grids[x][y].changeResource(R.drawable.grid);
+    public void resetGrid(int y,int x){
+        grids[y][x].setTaken(false);
+        grids[y][x].makeInvisible();
     }
 
     public boolean checkEndGame(){
@@ -72,5 +86,15 @@ public class Table {
         else{
             return false;
         }
+    }
+    public boolean checkDouble(int currentNum,int y,int x){
+        if(grids[y][x].getNum()==currentNum){
+            return true;
+        }
+        else
+            return false;
+    }
+    public void changeNum(){
+        grids[currentY][currentX].setNum(currentNum);
     }
 }

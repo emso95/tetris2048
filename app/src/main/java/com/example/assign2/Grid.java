@@ -15,6 +15,7 @@ public class Grid {
     private ConstraintLayout.LayoutParams pos;
     private boolean taken;
     ImageView img;
+    private int num;
     public Grid(Activity myActivity,ConstraintLayout.LayoutParams pos,int id){
         this.myActivity=myActivity;
         this.id=id;
@@ -29,8 +30,8 @@ public class Grid {
     public void changeResource(int imageName){
 
         img=(ImageView)myActivity.findViewById(this.id);
+        img.setImageResource(imageName);
         img.setVisibility(View.VISIBLE);
-        //img.setImageResource(R.mipmap.ic_launcher);
     }
     public void setTaken(boolean taken){
         this.taken=taken;
@@ -39,4 +40,15 @@ public class Grid {
         return this.taken;
     }
 
+    public int getNum() {
+        return num;
+    }
+
+    public void setNum(int num) {
+        this.num = num;
+    }
+    public void makeInvisible(){
+        img=(ImageView)myActivity.findViewById(this.id);
+        img.setVisibility(View.INVISIBLE);
+    }
 }

@@ -32,11 +32,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button btn;
     Table table;
     Grid[][] grids;
+    int imageSource[];
     ConstraintLayout cl;
     ConstraintLayout.LayoutParams[] startingPoints;
     private Handler handler,gameHandler;
     private GestureDetectorCompat gestureDetectorCompat = null;
-    boolean gameOver;
+    boolean tmp=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,31 +97,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Runnable runnableGame = new Runnable() {
         @Override
         public void run() {
+
             table.currentY=0;
             final int random = new Random().nextInt(3);
+            final int random1 = new Random().nextInt(2);
+            table.currentNum=random1;
             table.currentX=random;
             img.setLayoutParams(startingPoints[random]);
-            img.setImageResource(R.mipmap.ic_launcher);
+            img.setImageResource(imageSource[random1]);
             gameStatus=(TextView)findViewById(R.id.gameStatus);
         }
     };
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            if(table.checkAvailability(1)) {
-                movement(1);
-            }
-            else {
-                if(!table.checkEndGame()) {
-                    table.fillGrid(R.mipmap.ic_launcher);
+
+            movement(1);
+
+            if(tmp==false) {
+                if (!table.checkEndGame()) {
+                    table.fillGrid(imageSource[table.currentNum]);
+                    table.changeNum();
                     gameHandler.post(runnableGame);
-                }
-                else{
+                } else {
                     handler.removeCallbacks(runnable);
                     gameHandler.removeCallbacks(runnableGame);
                     gameStatus.setVisibility(View.VISIBLE);
                 }
             }
+
 
             handler.postDelayed(this, 1000);
         }
@@ -154,7 +159,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     animDown.setFillEnabled(true);
                     img.startAnimation(animDown);
                     table.currentY++;
+                    tmp=true;
                 }
+                else{
+                    tmp=false;
+                }
+
                 break;
             case 3:
                 if(table.checkAvailability(3)) {
@@ -163,7 +173,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     animRight.setFillEnabled(true);
                     img.startAnimation(animRight);
                     table.currentX++;
+                    tmp=true;
                 }
+                else{
+                    tmp=false;
+                }
+
                 break;
             case 4:
                 if(table.checkAvailability(4)) {
@@ -172,7 +187,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     animLeft.setFillEnabled(true);
                     img.startAnimation(animLeft);
                     table.currentX--;
+                    tmp=true;
                 }
+                else{
+                    tmp=false;
+                }
+
                 break;
         }
     }
@@ -268,7 +288,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         table.currentX=0;
         table.currentY=0;
 
-
+        imageSource=new int[11];
+        imageSource[0]=R.drawable.image2;
+        imageSource[1]=R.drawable.image4;
+        imageSource[2]=R.drawable.image8;
+        imageSource[3]=R.drawable.image16;
+        imageSource[4]=R.drawable.image32;
+        imageSource[5]=R.drawable.image64;
+        imageSource[6]=R.drawable.image128;
+        imageSource[7]=R.drawable.image256;
+        imageSource[8]=R.drawable.image512;
+        imageSource[9]=R.drawable.image1024;
+        imageSource[10]=R.drawable.image2048;
     }
 
 

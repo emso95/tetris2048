@@ -15,7 +15,7 @@
         android:layout_marginStart="160dp"
         android:layout_marginLeft="160dp"
         android:layout_marginBottom="159dp"
-        android:text="Button"
+        android:text="Start"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

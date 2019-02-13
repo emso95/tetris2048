@@ -47,11 +47,11 @@ public class DetectSwipeGestureListener extends GestureDetector.SimpleOnGestureL
         {
             if(deltaX > 0)
             {
-                this.activity.displayMessage("Swipe to left");
+
                 this.activity.movement(4);
             }else
             {
-                this.activity.displayMessage("Swipe to right");
+
                 this.activity.movement(3);
             }
         }
@@ -60,11 +60,11 @@ public class DetectSwipeGestureListener extends GestureDetector.SimpleOnGestureL
         {
             if(deltaY > 0)
             {
-                this.activity.displayMessage("Swipe to up");
+
                 this.activity.movement(2);
             }else
             {
-                this.activity.displayMessage("Swipe to down");
+
                 this.activity.movement(1);
             }
         }

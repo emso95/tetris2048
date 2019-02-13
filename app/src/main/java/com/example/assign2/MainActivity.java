@@ -43,8 +43,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ConstructTable();
-
         DetectSwipeGestureListener gestureListener = new DetectSwipeGestureListener();
         gestureListener.setActivity(this);
         gestureDetectorCompat = new GestureDetectorCompat(this, gestureListener);
@@ -87,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if(v.getId()==R.id.button) {
+            ConstructTable();
             cl = findViewById(R.id.myLayout);
             cl.addView(img);
             gameHandler.post(runnableGame);

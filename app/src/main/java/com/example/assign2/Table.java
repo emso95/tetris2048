@@ -84,7 +84,12 @@ public class Table {
             return true;
         }
         else{
-            return false;
+            if(currentNum==10){
+                return true;
+            }
+            else {
+                return false;
+            }
         }
     }
     public boolean checkDouble(int currentNum,int y,int x){
